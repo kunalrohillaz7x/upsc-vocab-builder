@@ -6,3 +6,11 @@ engine = create_engine("postgresql://postgres:1234@localhost:5432/upsc_vocab", e
 Base = declarative_base()
 SessionLocal = sessionmaker(bind=engine)
 session = SessionLocal()
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
