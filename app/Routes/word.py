@@ -38,6 +38,17 @@ def add_word(word: WordBase, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Word added successfully"}
 
+@router.get("/words/search")
+def search_word(keyword: str, db: Session = Depends(get_db)):
+    words = db.query(Word).filter(Word.word.ilike(f"%{keyword}%")).all()
+    return [{
+        "word": word.word,
+        "meaning": word.meaning,
+        "category": word.category,
+        "difficulty": word.difficulty,
+        "editorial_example": word.editorial_example
+    } for word in words]
+
 
 @router.get("/words/{id}")
 def get_word(id: int, db: Session = Depends(get_db)):
@@ -91,3 +102,5 @@ def get_daily_word(db: Session = Depends(get_db)):
         "difficulty": word.difficulty,
         "editorial_example": word.editorial_example
     } for word in words]
+
+
