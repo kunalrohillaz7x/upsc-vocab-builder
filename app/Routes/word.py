@@ -103,4 +103,15 @@ def get_daily_word(db: Session = Depends(get_db)):
         "editorial_example": word.editorial_example
     } for word in words]
 
+@router.get("/words/category/{category}")
+def get_words_by_category(category: str, db: Session = Depends(get_db)):
+    words = db.query(Word).filter(Word.category == category).all()
+    return [{
+        "word": word.word,
+        "meaning": word.meaning,
+        "category": word.category,
+        "difficulty": word.difficulty,
+        "editorial_example": word.editorial_example
+    } for word in words]
+
 
