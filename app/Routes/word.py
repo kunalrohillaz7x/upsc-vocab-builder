@@ -6,6 +6,7 @@ from app.models import Word
 from app.database import SessionLocal, engine ,get_db
 from app.schemas import WordBase
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 
 app = FastAPI()
@@ -51,6 +52,22 @@ def get_word(id: int, db: Session = Depends(get_db)):
         "editorial_example": word.editorial_example
     }
 
+@router.post("/words/bulk")
+def add_words(words: list[WordBase], db: Session = Depends(get_db)):
+    new_words = [
+        Word(
+            word=word.word,
+            meaning=word.meaning,
+            category=word.category,
+            difficulty=word.difficulty,
+            editorial_example=word.editorial_example
+        )
+        for word in words
+    ]
+    db.add_all(new_words)
+    db.commit()
+    return {"message": "Words added successfully"}
+
 @router.delete("/words/{id}")
 def delete_word(id: int, db: Session = Depends(get_db)):
     word = db.query(Word).filter(Word.id == id).first()
@@ -59,3 +76,18 @@ def delete_word(id: int, db: Session = Depends(get_db)):
     db.delete(word)
     db.commit()
     return {"message": "Word deleted successfully"}
+
+@router.get("/daily-word")
+def get_daily_word(db: Session = Depends(get_db)):
+    words = db.query(Word).order_by(func.random()).limit(4).all()
+
+    if not words:
+        return {"message": "No words available"}
+
+    return [{
+        "word": word.word,
+        "meaning": word.meaning,
+        "category": word.category,
+        "difficulty": word.difficulty,
+        "editorial_example": word.editorial_example
+    } for word in words]
