@@ -115,3 +115,17 @@ def get_words_by_category(category: str, db: Session = Depends(get_db)):
     } for word in words]
 
 
+@router.put("/words/{id}")
+def update_word(id: int, word: WordBase, db: Session = Depends(get_db)):
+    existing_word = db.query(Word).filter(Word.id == id).first()
+    if not existing_word:
+        return {"message": "Word not found"}
+    
+    existing_word.word = word.word
+    existing_word.meaning = word.meaning
+    existing_word.category = word.category
+    existing_word.difficulty = word.difficulty
+    existing_word.editorial_example = word.editorial_example
+    
+    db.commit()
+    return {"message": "Word updated successfully"}
