@@ -6,3 +6,14 @@ class WordBase(BaseModel):
     category: str
     difficulty: str
     editorial_example: str
+
+class WordResponse(WordBase):
+    id: int
+    word: str
+    meaning: str
+    category: str
+    difficulty: str
+    editorial_example: str
+
+    class Config:
+        orm_mode = True
