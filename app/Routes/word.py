@@ -1,6 +1,6 @@
 
 
-from fastapi import FastAPI,APIRouter,Depends
+from fastapi import FastAPI,APIRouter,Depends,HTTPException
 from app.models import Word
 from app.models import Word
 from app.database import SessionLocal, engine ,get_db
@@ -54,7 +54,7 @@ def search_word(keyword: str, db: Session = Depends(get_db)):
 def get_word(id: int, db: Session = Depends(get_db)):
     word = db.query(Word).filter(Word.id == id).first()
     if not word:
-        return {"message": "Word not found"}
+        raise HTTPException(status_code=404, detail="Word not found")
     return {
         "word": word.word,
         "meaning": word.meaning,
@@ -83,7 +83,7 @@ def add_words(words: list[WordBase], db: Session = Depends(get_db)):
 def delete_word(id: int, db: Session = Depends(get_db)):
     word = db.query(Word).filter(Word.id == id).first()
     if not word:
-        return {"message": "Word not found"}
+        raise HTTPException(status_code=404, detail="Word not found")
     db.delete(word)
     db.commit()
     return {"message": "Word deleted successfully"}
@@ -93,7 +93,7 @@ def get_daily_word(db: Session = Depends(get_db)):
     words = db.query(Word).order_by(func.random()).limit(4).all()
 
     if not words:
-        return {"message": "No words available"}
+        raise HTTPException(status_code=404, detail="No words available")
 
     return [{
         "word": word.word,
@@ -119,7 +119,7 @@ def get_words_by_category(category: str, db: Session = Depends(get_db)):
 def update_word(id: int, word: WordBase, db: Session = Depends(get_db)):
     existing_word = db.query(Word).filter(Word.id == id).first()
     if not existing_word:
-        return {"message": "Word not found"}
+        raise HTTPException(status_code=404, detail="Word not found")
     
     existing_word.word = word.word
     existing_word.meaning = word.meaning
