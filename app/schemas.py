@@ -6,6 +6,10 @@ class WordBase(BaseModel):
     category: str
     difficulty: str
     editorial_example: str
+    pronunciation: str
+    etymology: str
+    synonyms: str
+    antonyms: str
 
 class WordResponse(WordBase):
     id: int
@@ -14,6 +18,10 @@ class WordResponse(WordBase):
     category: str
     difficulty: str
     editorial_example: str
+    pronunciation: str
+    etymology: str
+    synonyms: str
+    antonyms: str
 
     class Config:
         orm_mode = True

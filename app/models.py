@@ -11,5 +11,9 @@ class Word(Base):
     category = Column(String)
     difficulty = Column(String)
     editorial_example = Column(String)
+    pronunciation = Column(String)
+    etymology = Column(String)
+    synonyms = Column(String)
+    antonyms = Column(String)
 
 

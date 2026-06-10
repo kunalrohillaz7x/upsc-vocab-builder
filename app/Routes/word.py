@@ -23,7 +23,11 @@ def add_word(word: WordBase, db: Session = Depends(get_db)):
         meaning=word.meaning,
         category=word.category,
         difficulty=word.difficulty,
-        editorial_example=word.editorial_example
+        editorial_example=word.editorial_example,
+        pronunciation=word.pronunciation,
+        etymology=word.etymology,
+        synonyms=word.synonyms,
+        antonyms=word.antonyms
     )
     db.add(new_word)
     db.commit()
@@ -52,7 +56,11 @@ def add_words(words: list[WordBase], db: Session = Depends(get_db)):
             meaning=word.meaning,
             category=word.category,
             difficulty=word.difficulty,
-            editorial_example=word.editorial_example
+            editorial_example=word.editorial_example,
+            pronunciation=word.pronunciation,
+            etymology=word.etymology,
+            synonyms=word.synonyms,
+            antonyms=word.antonyms
         )
         for word in words
     ]
@@ -95,7 +103,11 @@ def update_word(id: int, word: WordBase, db: Session = Depends(get_db)):
     existing_word.category = word.category
     existing_word.difficulty = word.difficulty
     existing_word.editorial_example = word.editorial_example
-    
+    existing_word.pronunciation = word.pronunciation
+    existing_word.etymology = word.etymology
+    existing_word.synonyms = word.synonyms
+    existing_word.antonyms = word.antonyms
+
     db.commit()
     db.refresh(existing_word)
     return existing_word
