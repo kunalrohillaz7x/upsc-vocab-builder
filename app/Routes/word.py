@@ -3,9 +3,11 @@
 from fastapi import FastAPI,APIRouter,Depends,HTTPException
 from app.models import Word
 from app.database import get_db
-from app.schemas import WordBase, WordResponse
+from app.schemas import WordBase, WordResponse, AIWordRequest
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from google import genai
+import json
 
 
 router = APIRouter()
@@ -111,3 +113,93 @@ def update_word(id: int, word: WordBase, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(existing_word)
     return existing_word
+
+@router.post("/ai-word", response_model=WordResponse)
+def generate_word_info(
+    request: AIWordRequest,
+    db: Session = Depends(get_db)
+):
+
+    try:
+
+        word = request.word.capitalize()
+
+        existing_word = db.query(Word).filter(
+            Word.word.ilike(word)
+        ).first()
+
+        if existing_word:
+            raise HTTPException(
+                status_code=400,
+                detail="Word already exists"
+            )
+
+        client = genai.Client(
+            api_key="Meri api key ka kya krega ladle"
+        )
+
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=f"""
+Explain the word {word} for a UPSC aspirant.
+
+Return ONLY valid JSON.
+
+Rules:
+- Keep meaning under 40 words
+- Keep editorial_example under 30 words
+- synonyms should contain maximum 5 words
+- antonyms should contain maximum 5 words
+- concise and clean output only
+
+JSON fields:
+- meaning
+- pronunciation
+- etymology
+- synonyms
+- antonyms
+- editorial_example
+"""
+        )
+
+        raw_text = response.text
+
+        cleaned_response = raw_text.strip()
+        cleaned_response = cleaned_response.replace("```json", "")
+        cleaned_response = cleaned_response.replace("```", "")
+
+        data = json.loads(cleaned_response)
+
+        data["synonyms"] = ", ".join(data["synonyms"])
+        data["antonyms"] = ", ".join(data["antonyms"])
+
+        new_word = Word(
+            word=word,
+            meaning=data["meaning"],
+            pronunciation=data["pronunciation"],
+            etymology=data["etymology"],
+            synonyms=data["synonyms"],
+            antonyms=data["antonyms"],
+            editorial_example=data["editorial_example"],
+            category="AI Generated",
+            difficulty="Medium"
+        )
+
+        db.add(new_word)
+        db.commit()
+        db.refresh(new_word)
+
+        return new_word
+
+    except HTTPException as e:
+        raise e
+
+    except Exception as e:
+
+        print("ERROR OCCURRED:")
+        print(e)
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )

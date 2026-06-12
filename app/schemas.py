@@ -25,3 +25,6 @@ class WordResponse(WordBase):
 
     class Config:
         orm_mode = True
+
+class AIWordRequest(BaseModel):
+    word: str
