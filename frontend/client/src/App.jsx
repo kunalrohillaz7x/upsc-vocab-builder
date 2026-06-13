@@ -12,29 +12,37 @@ function App() {
     if (!generatorInput.trim()) return;
     
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setGeneratedWord({
-        text: generatorInput.charAt(0).toUpperCase() + generatorInput.slice(1),
-        pron: "/example/",
-        meaning: "Example meaning based on contextual usage in UPSC essays and editorials.",
-        etymology: "From Latin roots meaning illustrative example.",
-        synonyms: ["illustration", "instance", "sample", "specimen"],
-        antonyms: ["exception", "anomaly"],
-        example: "The government's policy served as a perfect example of progressive thinking in administrative reforms."
-      });
-      setIsLoading(false);
-    }, 1200);
+
+try {
+
+  const response = await fetch("http://127.0.0.1:8000/ai-word", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      word: generatorInput,
+    }),
+  });
+
+  const data = await response.json();
+
+  console.log(data);
+
+  setGeneratedWord(data);
+
+} catch (error) {
+
+  console.log(error);
+
+} finally {
+
+  setIsLoading(false);
+
+}
   };
 
-  const word = {
-    text: "Probity",
-    pos: "noun",
-    pron: "/proʊ.bi.ti/",
-    def: "Strong moral principles, honesty, and integrity.",
-    mnemonic:
-      "Probe-it: if a life audit shows no fault, the person has probity.",
-  };
+
 
   return (
     <div className={`min-h-screen transition-all duration-300 ${isDark ? 'bg-slate-950 text-white' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 text-slate-950'}`}>
@@ -170,8 +178,8 @@ function App() {
                   {generatedWord ? (
                     <>
                       <div>
-                        <h3 className={`text-3xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-950'}`}>{generatedWord.text}</h3>
-                        <p className={`mt-2.5 text-base transition-colors duration-300 ${isDark ? 'text-cyan-300' : 'text-cyan-600'}`}>{generatedWord.pron}</p>
+                        <h3 className={`text-3xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-950'}`}>{generatorInput}</h3>
+                        <p className={`mt-2.5 text-base transition-colors duration-300 ${isDark ? 'text-cyan-300' : 'text-cyan-600'}`}>{generatedWord.pronunciation}</p>
                       </div>
 
                       <div className="flex flex-wrap gap-2 pt-2">
@@ -191,16 +199,44 @@ function App() {
                         <p className={`mt-3 text-sm transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>{generatedWord.etymology}</p>
                       </div>
 
-                      <div>
-                        <p className={`text-xs font-semibold uppercase tracking-[0.15em] transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Synonyms</p>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {generatedWord.synonyms.map((syn, idx) => (
-                            <span key={idx} className={`rounded-lg border px-3 py-1.5 text-sm transition-all duration-300 ${isDark ? 'border-cyan-500/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-500/60 hover:bg-cyan-500/20' : 'border-cyan-300 bg-cyan-50 text-cyan-700 hover:border-cyan-400 hover:bg-cyan-100'}`}>
-                              {syn}
-                            </span>
-                          ))}
+                      {generatedWord.editorial_example && (
+                        <div>
+                          <p className={`text-xs font-semibold uppercase tracking-[0.15em] transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Editorial Example</p>
+                          <p className={`mt-3 text-sm italic transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>"{generatedWord.editorial_example}"</p>
                         </div>
-                      </div>
+                      )}
+
+                      {generatedWord.synonyms && (
+                        <div>
+                          <p className={`text-xs font-semibold uppercase tracking-[0.15em] transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Synonyms</p>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {(typeof generatedWord.synonyms === 'string' 
+                              ? generatedWord.synonyms.split(',').map(s => s.trim())
+                              : Array.isArray(generatedWord.synonyms) ? generatedWord.synonyms : []
+                            ).map((syn, idx) => (
+                              <span key={idx} className={`rounded-lg border px-3 py-1.5 text-sm transition-all duration-300 ${isDark ? 'border-cyan-500/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-500/60 hover:bg-cyan-500/20' : 'border-cyan-300 bg-cyan-50 text-cyan-700 hover:border-cyan-400 hover:bg-cyan-100'}`}>
+                                {syn}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {generatedWord.antonyms && (
+                        <div>
+                          <p className={`text-xs font-semibold uppercase tracking-[0.15em] transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Antonyms</p>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {(typeof generatedWord.antonyms === 'string' 
+                              ? generatedWord.antonyms.split(',').map(a => a.trim())
+                              : Array.isArray(generatedWord.antonyms) ? generatedWord.antonyms : []
+                            ).map((ant, idx) => (
+                              <span key={idx} className={`rounded-lg border px-3 py-1.5 text-sm transition-all duration-300 ${isDark ? 'border-indigo-500/30 bg-indigo-500/10 text-indigo-300 hover:border-indigo-500/60 hover:bg-indigo-500/20' : 'border-indigo-300 bg-indigo-50 text-indigo-700 hover:border-indigo-400 hover:bg-indigo-100'}`}>
+                                {ant}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </>
                   ) : (
                     <div className="flex h-full flex-col items-center justify-center py-12 text-center">
@@ -210,7 +246,7 @@ function App() {
                         </svg>
                       </div>
                       <p className={`text-lg font-semibold transition-colors duration-300 ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>Try an example</p>
-                      <p className={`mt-2 text-sm transition-colors duration-300 ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>Enter "probity" or "diligence" to see AI analysis</p>
+                      <p className={`mt-2 text-sm transition-colors duration-300 ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>Enter a word to see AI-powered analysis</p>
                     </div>
                   )}
                 </div>

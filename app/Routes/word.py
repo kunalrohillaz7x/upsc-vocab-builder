@@ -7,8 +7,11 @@ from app.schemas import WordBase, WordResponse, AIWordRequest
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from google import genai
+from dotenv import load_dotenv
+import os
 import json
 
+load_dotenv()
 
 router = APIRouter()
 
@@ -135,7 +138,7 @@ def generate_word_info(
             )
 
         client = genai.Client(
-            api_key="Meri api key ka kya krega ladle"
+            api_key=os.getenv("GEMINI_API_KEY")
         )
 
         response = client.models.generate_content(
