@@ -1,4 +1,5 @@
-﻿import { useState } from "react";
+﻿import React, { useState } from "react";
+import DailyWords from './components/DailyWords'
 
 function App() {
   const [generatorInput, setGeneratorInput] = useState("");
@@ -255,6 +256,13 @@ try {
           </div>
         </section>
 
+        {/* Daily words section (integrated component) */}
+        <div className="mt-12">
+          <div className={isDark ? 'dark' : ''}>
+            <DailyWords isDark={isDark} />
+          </div>
+        </div>
+
         <section className="mt-20 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <div className={`rounded-[2rem] border transition-all duration-300 p-6 ${isDark ? 'border-slate-700 bg-slate-800 shadow-[0_2px_12px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)]' : 'border-slate-200 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)]'}`}>
             <h3 className={`text-lg font-semibold transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-950'}`}>Spaced Repetition</h3>
@@ -277,6 +285,8 @@ try {
             </p>
           </div>
         </section>
+
+        
 
         <footer className={`mt-20 border-t transition-all duration-300 pt-8 text-sm ${isDark ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-slate-600'}`}>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
