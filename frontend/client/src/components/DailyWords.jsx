@@ -4,6 +4,7 @@ const DailyWords = ({ isDark }) => {
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [justUpdated, setJustUpdated] = useState(false)
 
   // modal state
   const [selectedWord, setSelectedWord] = useState(null)
@@ -17,10 +18,22 @@ const DailyWords = ({ isDark }) => {
       if (!res.ok) throw new Error(`Server error: ${res.status}`)
       const data = await res.json()
       setWords(Array.isArray(data) ? data.slice(0, 4) : [])
+      return true
     } catch (err) {
       setError(err.message || 'Failed to load daily words')
+      return false
     } finally {
       setLoading(false)
+    }
+  }
+
+  // wrapper to trigger refresh microinteraction without duplicating fetch logic
+  const handleRefresh = async () => {
+    if (loading) return
+    const success = await fetchData()
+    if (success) {
+      setJustUpdated(true)
+      setTimeout(() => setJustUpdated(false), 1000)
     }
   }
 
@@ -48,6 +61,32 @@ const DailyWords = ({ isDark }) => {
                 </span>
                 <span>Refreshed Daily</span>
               </div>
+
+              {/* Polished Refresh button */}
+              <button
+                onClick={handleRefresh}
+                disabled={loading}
+                aria-label="Refresh words"
+                className={`relative inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full transition-all duration-200 ease-out transform ${loading ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-1 hover:scale-105'} ${isDark ? 'bg-slate-800/50 text-white backdrop-blur-sm' : 'bg-white/70 text-slate-900 backdrop-blur-sm'} shadow-sm border border-transparent`}
+                style={{ boxShadow: justUpdated ? '0 6px 32px rgba(56,189,248,0.12)' : undefined }}
+                title="Fetch fresh daily words"
+              >
+                <span className={`absolute -inset-px rounded-full pointer-events-none transition-opacity ${justUpdated ? 'opacity-100' : 'opacity-0'}`} style={{ boxShadow: '0 8px 30px rgba(56,189,248,0.06)' }} />
+
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  className={`h-4 w-4 text-cyan-400 ${loading ? 'animate-spin' : 'transition-transform'}`}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v6h6M20 20v-6h-6" />
+                </svg>
+
+                <span className="flex items-center gap-2">
+                  <span>Refresh Words</span>
+                  <span className={`ml-1 text-xs font-semibold text-cyan-300 transition-opacity ${justUpdated ? 'opacity-100' : 'opacity-0'}`}>Updated</span>
+                </span>
+              </button>
             </div>
           </div>
         </div>
