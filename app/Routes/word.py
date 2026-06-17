@@ -3,13 +3,14 @@
 from fastapi import FastAPI,APIRouter,Depends,HTTPException
 from app.models import Word
 from app.database import get_db
-from app.schemas import WordBase, WordResponse, AIWordRequest
+from app.schemas import WordBase, WordResponse, AIWordRequest, Quiz
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from google import genai
 from dotenv import load_dotenv
 import os
 import json
+import random
 
 load_dotenv()
 
@@ -206,3 +207,34 @@ JSON fields:
             status_code=500,
             detail=str(e)
         )
+    
+@router.get("/quiz/random")
+def generate_quiz(db: Session = Depends(get_db)):
+
+    word = (
+        db.query(Word)
+        .order_by(func.random())
+        .first()
+    )
+
+    wrong_words = (
+    db.query(Word)
+    .filter(Word.id != word.id)
+    .order_by(func.random())
+    .limit(3)
+    .all()
+)
+
+    options = [word.meaning]
+
+    for w in wrong_words:
+        options.append(w.meaning)
+
+    random.shuffle(options)
+
+    return{
+        "word": word.word,
+        "question": f"What is the meaning of the word '{word.word}'?",
+        "options": options,
+        "correct_option": word.meaning
+    }

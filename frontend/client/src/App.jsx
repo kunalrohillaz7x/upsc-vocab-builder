@@ -1,13 +1,53 @@
-﻿import React, { useState } from "react";
+﻿import React, { useState, useEffect } from "react";
 import DailyWords from './components/DailyWords'
 
 function App() {
   const [generatorInput, setGeneratorInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [generatedWord, setGeneratedWord] = useState(null);
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const storedTheme = window.localStorage.getItem('theme-preference');
+      if (storedTheme === 'light') return false;
+      return true;
+    }
+    return true;
+  });
+  const [splashFading, setSplashFading] = useState(false);
+  const [splashHidden, setSplashHidden] = useState(false);
+  const [logoVisible, setLogoVisible] = useState(false);
+  const [taglineVisible, setTaglineVisible] = useState(false);
+  const [logoPulse, setLogoPulse] = useState(false);
+  const [contentVisible, setContentVisible] = useState(false);
 
-  const toggleTheme = () => setIsDark(!isDark);
+  const toggleTheme = () => setIsDark((current) => !current);
+
+  useEffect(() => {
+    window.localStorage.setItem('theme-preference', isDark ? 'dark' : 'light');
+  }, [isDark]);
+
+  useEffect(() => {
+    const logoTimer = window.setTimeout(() => setLogoVisible(true), 120);
+    const taglineTimer = window.setTimeout(() => setTaglineVisible(true), 900);
+    const pulseTimer = window.setTimeout(() => setLogoPulse(true), 1900);
+    const fadeTimer = window.setTimeout(() => setSplashFading(true), 3000);
+    const contentTimer = window.setTimeout(() => setContentVisible(true), 3000);
+    const hideTimer = window.setTimeout(() => setSplashHidden(true), 3300);
+
+    return () => {
+      window.clearTimeout(logoTimer);
+      window.clearTimeout(taglineTimer);
+      window.clearTimeout(pulseTimer);
+      window.clearTimeout(fadeTimer);
+      window.clearTimeout(contentTimer);
+      window.clearTimeout(hideTimer);
+    };
+  }, []);
+
+  const showSplash = !splashHidden;
+
+  const splashStyle = 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-white';
+  const splashCardStyle = 'border border-white/10 bg-slate-950/90';
 
   const handleGenerateWord = async () => {
     if (!generatorInput.trim()) return;
@@ -46,8 +86,38 @@ try {
 
 
   return (
-    <div className={`min-h-screen transition-all duration-300 ${isDark ? 'bg-slate-950 text-white' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 text-slate-950'}`}>
-      <header className={`border-b transition-all duration-300 ${isDark ? 'border-slate-800 bg-slate-900/50 backdrop-blur-xl' : 'border-slate-200/50 bg-white/80 backdrop-blur-xl'}`}>
+    <>
+      {showSplash && (
+        <div className={`fixed inset-0 z-50 flex items-center justify-center px-6 py-8 transition-all duration-700 ${splashFading ? 'opacity-0 pointer-events-none' : 'opacity-100'} ${splashStyle}`}>
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-3xl opacity-80" />
+            <div className="absolute left-1/2 top-1/2 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/10 blur-3xl opacity-60" />
+          </div>
+
+          <div className={`relative w-full max-w-2xl rounded-[2rem] border px-10 py-14 shadow-[0_40px_120px_rgba(15,23,42,0.35)] transition-all duration-700 ${splashCardStyle}`}>
+            <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 via-cyan-300 to-indigo-500 text-5xl font-bold text-white shadow-[0_0_60px_rgba(56,189,248,0.25)]">
+              CL
+            </div>
+
+            <div className={`text-center transition-all duration-700 ${logoVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-3 scale-95'}`}>
+              <h1 className="text-5xl font-semibold tracking-tight text-transparent bg-gradient-to-r from-cyan-300 to-indigo-400 bg-clip-text sm:text-6xl">
+                CiviLex
+              </h1>
+            </div>
+
+            <p className={`mx-auto mt-5 max-w-xl text-center text-base leading-8 text-slate-200 transition-all duration-700 ${taglineVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
+              Master the Language of UPSC
+            </p>
+
+            <div className={`absolute inset-0 rounded-[2rem] ${logoPulse ? 'opacity-100 scale-[1.01]' : 'opacity-0 scale-100'} transition-all duration-1000`}>
+              <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-3xl" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className={`min-h-screen transition-all duration-700 ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'} ${isDark ? 'bg-slate-950 text-white' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 text-slate-950'}`}>
+        <header className={`border-b transition-all duration-300 ${isDark ? 'border-slate-800 bg-slate-900/50 backdrop-blur-xl' : 'border-slate-200/50 bg-white/80 backdrop-blur-xl'}`}>
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-6 sm:px-8 lg:px-12">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-indigo-600 text-base font-semibold text-white shadow-lg shadow-cyan-500/20">
@@ -304,6 +374,7 @@ try {
         </footer>
       </main>
     </div>
+    </>
   );
 }
 

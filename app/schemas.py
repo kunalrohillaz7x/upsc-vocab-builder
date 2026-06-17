@@ -28,3 +28,10 @@ class WordResponse(WordBase):
 
 class AIWordRequest(BaseModel):
     word: str
+
+
+class Quiz(BaseModel):
+    word: str
+    meaning: str
+    options: list[str]
+    correct_option: str
