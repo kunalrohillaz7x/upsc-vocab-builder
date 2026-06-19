@@ -30,8 +30,8 @@ class AIWordRequest(BaseModel):
     word: str
 
 
-class Quiz(BaseModel):
+class QuizResponse(BaseModel):
     word: str
-    meaning: str
+    question: str
     options: list[str]
     correct_option: str

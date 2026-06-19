@@ -3,7 +3,7 @@
 from fastapi import FastAPI,APIRouter,Depends,HTTPException
 from app.models import Word
 from app.database import get_db
-from app.schemas import WordBase, WordResponse, AIWordRequest, Quiz
+from app.schemas import QuizResponse, WordBase, WordResponse, AIWordRequest
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from google import genai
@@ -208,7 +208,7 @@ JSON fields:
             detail=str(e)
         )
     
-@router.get("/quiz/random")
+@router.get("/quiz/random",response_model=QuizResponse)
 def generate_quiz(db: Session = Depends(get_db)):
 
     word = (

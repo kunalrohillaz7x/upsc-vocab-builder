@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect } from "react";
 import DailyWords from './components/DailyWords'
+import QuizCard from './components/QuizCard'
 
 function App() {
   const [generatorInput, setGeneratorInput] = useState("");
@@ -330,6 +331,7 @@ try {
         <div className="mt-12">
           <div className={isDark ? 'dark' : ''}>
             <DailyWords isDark={isDark} />
+            <QuizCard />
           </div>
         </div>
 
