@@ -331,7 +331,7 @@ try {
         <div className="mt-12">
           <div className={isDark ? 'dark' : ''}>
             <DailyWords isDark={isDark} />
-            <QuizCard />
+            <QuizCard isDark={isDark} />
           </div>
         </div>
 
