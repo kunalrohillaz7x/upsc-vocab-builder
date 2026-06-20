@@ -1,7 +1,7 @@
 
 
 from fastapi import FastAPI,APIRouter,Depends,HTTPException
-from app.models import Word
+from app.models import SavedWord, Word
 from app.database import get_db
 from app.schemas import QuizResponse, WordBase, WordResponse, AIWordRequest
 from sqlalchemy.orm import Session
@@ -238,3 +238,68 @@ def generate_quiz(db: Session = Depends(get_db)):
         "options": options,
         "correct_option": word.meaning
     }
+
+@router.post("/saved-words/{word_id}")
+def save_word(word_id: int, db: Session = Depends(get_db)):
+    word = db.query(Word).filter(Word.id == word_id).first()
+
+    if not word:
+        raise HTTPException(
+            status_code=404,
+            detail="Word not found"
+        )
+
+    existing_saved_word = (
+    db.query(SavedWord)
+    .filter(SavedWord.word_id == word_id)
+    .first()
+)
+
+    if existing_saved_word:
+        raise HTTPException(
+            status_code=409,
+            detail="Word already saved"
+        )
+    
+    else:
+        saved_word = SavedWord(word_id=word_id)
+        db.add(saved_word)
+        db.commit()
+        db.refresh(saved_word)
+
+        return {"message": "Word saved successfully"}
+    
+
+@router.get("/saved-words")
+def get_saved_words(
+    db: Session = Depends(get_db)
+):
+    saved_words = db.query(SavedWord).all()
+
+    return [
+        {
+            "id": saved.id,
+            "word": saved.word.word
+        }
+        for saved in saved_words
+    ]
+
+@router.delete("/saved-words/{word_id}")
+def delete_saved_word(
+    word_id: int,
+    db: Session = Depends(get_db)
+):
+    saved_word = (
+        db.query(SavedWord)
+        .filter(SavedWord.word_id == word_id)
+        .first()
+)
+    if not saved_word:
+        raise HTTPException(
+            status_code=404,
+            detail="Saved word not found"
+        )
+    else :
+        db.delete(saved_word)
+        db.commit()
+        return {"message": "Saved word deleted successfully"}

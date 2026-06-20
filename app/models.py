@@ -1,5 +1,6 @@
 from app.database import Base, engine
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 
 class Word(Base):
@@ -15,5 +16,24 @@ class Word(Base):
     etymology = Column(String)
     synonyms = Column(String)
     antonyms = Column(String)
+    saved_words = relationship(
+    "SavedWord",
+    back_populates="word"
+)
+
+class SavedWord(Base):
+    __tablename__ = "saved_words"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    word_id = Column(
+        Integer,
+        ForeignKey("words.id"),
+        nullable=False
+    )
+    word = relationship(
+    "Word",
+    back_populates="saved_words"
+)
 
 
