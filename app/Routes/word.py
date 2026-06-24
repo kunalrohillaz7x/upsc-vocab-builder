@@ -142,7 +142,31 @@ def generate_word_info(
             api_key=os.getenv("GEMINI_API_KEY")
         )
 
-        response = client.models.generate_content(
+#         response = client.models.generate_content(
+#             model="gemini-2.5-flash",
+#             contents=f"""
+# Explain the word {word} for a UPSC aspirant.
+
+# Return ONLY valid JSON.
+
+# Rules:
+# - Keep meaning under 40 words
+# - Keep editorial_example under 30 words
+# - synonyms should contain maximum 5 words
+# - antonyms should contain maximum 5 words
+# - concise and clean output only
+
+# JSON fields:
+# - meaning
+# - pronunciation
+# - etymology
+# - synonyms
+# - antonyms
+# - editorial_example
+# """
+#         )
+        try:
+            response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=f"""
 Explain the word {word} for a UPSC aspirant.
@@ -163,8 +187,12 @@ JSON fields:
 - synonyms
 - antonyms
 - editorial_example
-"""
-        )
+""")
+        except Exception as e:
+            raise HTTPException(
+            status_code=503,
+            detail="AI service is currently busy. Please try again in a few moments."
+    )
 
         raw_text = response.text
 
