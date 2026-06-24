@@ -14,7 +14,7 @@ const DailyWords = ({ isDark }) => {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch('http://127.0.0.1:8000/daily-word')
+      const res = await fetch('https://upsc-vocab-builder.onrender.com/daily-word')
       if (!res.ok) throw new Error(`Server error: ${res.status}`)
       const data = await res.json()
       setWords(Array.isArray(data) ? data.slice(0, 4) : [])

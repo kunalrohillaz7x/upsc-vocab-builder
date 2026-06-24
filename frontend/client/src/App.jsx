@@ -57,7 +57,7 @@ function App() {
 
 try {
 
-  const response = await fetch("http://127.0.0.1:8000/ai-word", {
+  const response = await fetch("https://upsc-vocab-builder.onrender.com/ai-word", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

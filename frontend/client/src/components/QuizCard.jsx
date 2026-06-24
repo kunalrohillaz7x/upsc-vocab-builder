@@ -17,7 +17,7 @@ const QuizCard = ({ isDark = false }) => {
     setIsCorrect(false)
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/quiz/random')
+      const response = await fetch('https://upsc-vocab-builder.onrender.com/quiz/random')
       if (!response.ok) {
         throw new Error(`Server returned ${response.status}`)
       }
